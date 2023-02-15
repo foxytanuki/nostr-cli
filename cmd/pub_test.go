@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
 
 // ref: https://github.com/spf13/cobra/blob/ad6db7f8f6e485f55b1561df9276fa4d8e278bde/command_test.go#L74-L78
@@ -11,6 +13,24 @@ func checkStringContains(t *testing.T, got, expected string) {
 	if !strings.Contains(got, expected) {
 		t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", expected, got)
 	}
+}
+
+// ref: https://github.com/spf13/cobra/blob/ad6db7f8f6e485f55b1561df9276fa4d8e278bde/command_test.go#L32-L35
+func executeCommand(root *cobra.Command, args ...string) (output string, err error) {
+	_, output, err = executeCommandC(root, args...)
+	return output, err
+}
+
+// ref: https://github.com/spf13/cobra/blob/ad6db7f8f6e485f55b1561df9276fa4d8e278bde/command_test.go#L48-L57
+func executeCommandC(root *cobra.Command, args ...string) (c *cobra.Command, output string, err error) {
+	buf := new(bytes.Buffer)
+	root.SetOut(buf)
+	root.SetErr(buf)
+	root.SetArgs(args)
+
+	c, err = root.ExecuteC()
+
+	return c, buf.String(), err
 }
 
 func TestPub(t *testing.T) {
@@ -61,7 +81,6 @@ func TestPubCmd(t *testing.T) {
 		ExpectErr   bool
 		ExpectedMsg string
 	}
-
 	cases := []TestCase{
 		{
 			Name:        "should raise an error for an argument",
@@ -78,8 +97,7 @@ func TestPubCmd(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		rootCmd.SetArgs(c.Args)
-		err := rootCmd.Execute()
+		_, err := executeCommand(rootCmd, c.Args...)
 		t.Run(c.Name, func(t *testing.T) {
 			if c.ExpectErr {
 				if err != nil {
@@ -91,7 +109,5 @@ func TestPubCmd(t *testing.T) {
 				t.Error("unexpected error")
 			}
 		})
-		// out, _ := io.ReadAll(b)
-		// fmt.Println(out)
 	}
 }
