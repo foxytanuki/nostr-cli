@@ -14,7 +14,39 @@ func checkStringContains(t *testing.T, got, expected string) {
 }
 
 func TestPub(t *testing.T) {
+	type TestCase struct {
+		Name        string
+		FlagName    string
+		FlagValue   string
+		ExpectErr   bool
+		ExpectedMsg string
+	}
 
+	cases := []TestCase{
+		{
+			Name:      "success",
+			FlagName:  "relay",
+			FlagValue: "wss://foo.io",
+			ExpectErr: false,
+		},
+		{
+			Name:      "should read an argument",
+			FlagName:  "relay",
+			FlagValue: "",
+			ExpectErr: true,
+		},
+	}
+
+	initPubCmd()
+
+	for _, c := range cases {
+		t.Run(c.Name, func(t *testing.T) {
+			err := pub(rootCmd, nil)
+			if err != nil {
+				t.Error(err)
+			}
+		})
+	}
 }
 
 func TestPubCmd(t *testing.T) {
