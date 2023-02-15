@@ -52,8 +52,18 @@ var genCmd = &cobra.Command{
 	},
 }
 
+var pubCmd = &cobra.Command{
+	Use:   "pub",
+	Short: "Publish events",
+	Long:  "Publish events",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return nil
+	},
+}
+
 func Execute() {
 	rootCmd.AddCommand(genCmd)
+	rootCmd.AddCommand(pubCmd)
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
