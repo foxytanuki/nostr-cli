@@ -41,7 +41,7 @@ func TestPubCmd(t *testing.T) {
 			Name:        "should raise an error for insufficient flags",
 			Args:        []string{"pub"},
 			ExpectErr:   true,
-			ExpectedMsg: "tmp",
+			ExpectedMsg: "required flag(s) \"relay\" not set",
 		},
 	}
 
