@@ -94,6 +94,12 @@ func TestPubCmd(t *testing.T) {
 			ExpectErr:   true,
 			ExpectedMsg: "required flag(s) \"relay\" not set",
 		},
+		{
+			Name:        "should raise an error for not ws",
+			Args:        []string{"pub", "--relay", "https://relay.io"},
+			ExpectErr:   true,
+			ExpectedMsg: "relay should be 'ws://**' or 'wss://**'",
+		},
 	}
 
 	for _, c := range cases {
