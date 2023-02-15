@@ -14,7 +14,7 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	rootCmd.AddCommand(genCmd)
-	rootCmd.AddCommand(pubCmd)
+	initPubCmd()
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
