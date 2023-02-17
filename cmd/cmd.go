@@ -6,15 +6,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "nostr-cli",
-	Short: "A CLI tool for nostrich",
-	Long:  "A CLI tool for nostrich",
+func initRootCmd() *cobra.Command {
+	rootCmd := &cobra.Command{
+		Use:   "nostr-cli",
+		Short: "A CLI tool for nostrich",
+		Long:  "A CLI tool for nostrich",
+	}
+	return rootCmd
 }
 
 func Execute() {
+	rootCmd := initRootCmd()
 	rootCmd.AddCommand(genCmd)
-	initPubCmd()
+	initPubCmd(rootCmd)
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
