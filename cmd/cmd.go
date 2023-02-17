@@ -19,6 +19,7 @@ func Execute() {
 	rootCmd := initRootCmd()
 	initGenCmd(rootCmd)
 	initPubCmd(rootCmd)
+	initReqCmd(rootCmd)
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
