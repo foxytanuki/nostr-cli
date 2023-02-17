@@ -181,7 +181,7 @@ func TestPubCmd(t *testing.T) {
 		{
 			Name:      "should raise an error for insufficient flags: --relay,--secret,--content",
 			Args:      []string{"pub"},
-			ExpectErr: "required flag(s) \"relay\", \"secret\", \"content\" not set",
+			ExpectErr: "required flag(s) \"content\", \"relay\", \"secret\" not set",
 		},
 		{
 			Name:      "should raise an error for insufficient flag: --secret",

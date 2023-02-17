@@ -65,7 +65,9 @@ func initPubCmd(rootCmd *cobra.Command) {
 	}
 	pubCmd.Flags().StringP("relay", "r", "", "relay URL to publish an event")
 	pubCmd.Flags().StringP("secret", "s", "", "secret key to publish an event")
+	pubCmd.Flags().StringP("content", "c", "", "content of an event")
 	pubCmd.MarkFlagRequired("relay")
 	pubCmd.MarkFlagRequired("secret")
+	pubCmd.MarkFlagRequired("content")
 	rootCmd.AddCommand(pubCmd)
 }
