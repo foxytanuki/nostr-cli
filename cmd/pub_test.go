@@ -2,9 +2,13 @@ package cmd
 
 import (
 	"bytes"
+	"net/http"
+	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
+	"github.com/gorilla/websocket"
 	"github.com/spf13/cobra"
 )
 
@@ -33,27 +37,97 @@ func executeCommandC(root *cobra.Command, args ...string) (c *cobra.Command, out
 	return c, buf.String(), err
 }
 
+var upgrader = websocket.Upgrader{}
+
+func echo(w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		return
+	}
+	defer c.Close()
+	for {
+		mt, message, err := c.ReadMessage()
+		if err != nil {
+			break
+		}
+		err = c.WriteMessage(mt, message)
+		if err != nil {
+			break
+		}
+	}
+}
+
+var u string
+
+func TestMain(m *testing.M) {
+	s := httptest.NewServer(http.HandlerFunc(echo))
+	defer s.Close()
+
+	// Convert http://127.0.0.1 to ws://127.0.0.
+	u = "ws" + strings.TrimPrefix(s.URL, "http")
+	code := m.Run()
+	os.Exit(code)
+}
+
+/*
+===Private Key (Do NOT share to anyone)===
+0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba
+nsec1q9t3skr57525l2gpxn0csuvy5x8z68gcpplmj4jn7spxnpxfr7aqn88ve4
+
+===Public Key (Share with your friends!)===
+a63e5a0a5747b86ad6fd1bb1a04cce0fa3a718cff3dcd90dca4f3e968eac049d
+npub15cl95zjhg7ux44harwc6qnxwp736wxx070wdjrw2fulfdr4vqjwsu7n80u
+*/
+
 func TestPub(t *testing.T) {
 	type TestCase struct {
-		Name        string
-		FlagName    string
-		FlagValue   string
-		ExpectErr   bool
-		ExpectedMsg string
+		Name      string
+		FlagRelay string
+		FlagSk    string
+		ExpectErr string
 	}
 
 	cases := []TestCase{
 		{
 			Name:      "success",
-			FlagName:  "relay",
-			FlagValue: "wss://foo.io",
-			ExpectErr: false,
+			FlagRelay: u,
+			FlagSk:    "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba",
 		},
 		{
-			Name:      "should read an argument",
-			FlagName:  "relay",
-			FlagValue: "",
-			ExpectErr: true,
+			Name:      "non-exist http endpoint",
+			FlagRelay: "https://localhost:3939",
+			FlagSk:    "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba",
+			ExpectErr: "error opening websocket to 'wss://localhost:3939': dial tcp [::1]:3939: connect: connection refused",
+		},
+		{
+			Name:      "non-exist websocket endpoint",
+			FlagRelay: "wss://localhost:3939",
+			FlagSk:    "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba",
+			ExpectErr: "error opening websocket to 'wss://localhost:3939': dial tcp [::1]:3939: connect: connection refused",
+		},
+		{
+			Name:      "empty sk",
+			FlagRelay: u,
+			FlagSk:    "", // zero
+			ExpectErr: "invalid hash length",
+		},
+		{
+			Name:      "invalid length sk",
+			FlagRelay: u,
+			FlagSk:    "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fb", // less than 32-bytes
+			ExpectErr: "invalid hash length",
+		},
+		{
+			Name:      "invalid length sk",
+			FlagRelay: u,
+			FlagSk:    "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fbaa", // more than 32-bytes
+			ExpectErr: "invalid hash length",
+		},
+		{
+			Name:      "invalid character in sk",
+			FlagRelay: u,
+			FlagSk:    "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fbx", // invalid character: x
+			ExpectErr: "encoding/hex: invalid byte:",
 		},
 	}
 
@@ -61,9 +135,16 @@ func TestPub(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.Name, func(t *testing.T) {
-			err := pub(rootCmd, nil)
-			if err != nil {
-				t.Error(err)
+			err := pub(c.FlagRelay, c.FlagSk)
+
+			if len(c.ExpectErr) > 0 {
+				if err != nil {
+					checkStringContains(t, err.Error(), c.ExpectErr)
+				} else {
+					t.Error("error should be raised")
+				}
+			} else if err != nil {
+				t.Error("unexpected error")
 			}
 		})
 	}
