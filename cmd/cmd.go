@@ -17,7 +17,7 @@ func initRootCmd() *cobra.Command {
 
 func Execute() {
 	rootCmd := initRootCmd()
-	rootCmd.AddCommand(genCmd)
+	initGenCmd(rootCmd)
 	initPubCmd(rootCmd)
 	err := rootCmd.Execute()
 	if err != nil {

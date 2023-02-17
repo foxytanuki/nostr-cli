@@ -8,14 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var genCmd = &cobra.Command{
-	Use:   "gen",
-	Short: "Generate private and public keys",
-	Long:  "Generate private and public keys and display in the form of hex and bech32",
-	Args:  cobra.MaximumNArgs(0),
-	RunE:  gen,
-}
-
 func gen(cmd *cobra.Command, args []string) error {
 	sk := nostr.GeneratePrivateKey()
 	nsec, err := nip19.EncodePrivateKey(sk)
@@ -45,4 +37,15 @@ func gen(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func initGenCmd(rootCmd *cobra.Command) {
+	genCmd := &cobra.Command{
+		Use:   "gen",
+		Short: "Generate private and public keys",
+		Long:  "Generate private and public keys and display in the form of hex and bech32",
+		Args:  cobra.MaximumNArgs(0),
+		RunE:  gen,
+	}
+	rootCmd.AddCommand(genCmd)
 }
