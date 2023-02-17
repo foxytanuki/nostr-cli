@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func pub(relayUrl string, sk string) error {
+func pub(relayUrl string, sk string, content string) error {
 	relay, err := nostr.RelayConnect(context.Background(), relayUrl)
 	if err != nil {
 		return cmdError(ErrRelayConnection, err.Error())
@@ -29,7 +29,7 @@ func pub(relayUrl string, sk string) error {
 		CreatedAt: time.Now(),
 		Kind:      1,
 		Tags:      nil,
-		Content:   "Hello World!",
+		Content:   content,
 	}
 	if err := ev.Sign(sk); err != nil {
 		return cmdError(ErrSignEvent, err.Error())
@@ -57,7 +57,11 @@ func initPubCmd(rootCmd *cobra.Command) {
 			if err != nil {
 				return err
 			}
-			if err := pub(relay, sk); err != nil {
+			content, err := cmd.Flags().GetString("content")
+			if err != nil {
+				return err
+			}
+			if err := pub(relay, sk, content); err != nil {
 				return err
 			}
 			return nil

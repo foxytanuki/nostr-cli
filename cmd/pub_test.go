@@ -81,17 +81,19 @@ npub15cl95zjhg7ux44harwc6qnxwp736wxx070wdjrw2fulfdr4vqjwsu7n80u
 
 func TestPub(t *testing.T) {
 	type TestCase struct {
-		Name      string
-		FlagRelay string
-		FlagSk    string
-		ExpectErr string
+		Name        string
+		FlagRelay   string
+		FlagSk      string
+		FlagContent string
+		ExpectErr   string
 	}
 
 	cases := []TestCase{
 		{
-			Name:      "success",
-			FlagRelay: u,
-			FlagSk:    "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba",
+			Name:        "success",
+			FlagRelay:   u,
+			FlagSk:      "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba",
+			FlagContent: "content",
 		},
 		{
 			Name:      "non-exist http endpoint",
@@ -141,7 +143,7 @@ func TestPub(t *testing.T) {
 		rootCmd := initRootCmd()
 		initPubCmd(rootCmd)
 		t.Run(c.Name, func(t *testing.T) {
-			err := pub(c.FlagRelay, c.FlagSk)
+			err := pub(c.FlagRelay, c.FlagSk, c.FlagContent)
 
 			if len(c.ExpectErr) > 0 {
 				if err != nil {
