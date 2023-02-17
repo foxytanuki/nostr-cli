@@ -9,6 +9,13 @@ const (
 
 	// ErrRelayConnection indicates that an attempt to connect the relay was failed.
 	ErrRelayConnection = ErrorKind("ErrRelayConnection")
+
+	// ErrGetPublicKey indicates that an attempt to get a public key
+	// from the given private key was failed.
+	ErrGetPublicKey = ErrorKind("ErrGetPublicKey")
+
+	// ErrSignEvent indicates that signing an event with the private key was failed.
+	ErrSignEvent = ErrorKind("ErrSignEvent")
 )
 
 // Error satisfies the error interface and prints human-readable errors.
