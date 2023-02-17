@@ -174,29 +174,29 @@ func TestPubCmd(t *testing.T) {
 			ExpectErr: "flag needs an argument: --secret",
 		},
 		{
-			Name:      "should raise an error for insufficient flags: --relay,--secret",
+			Name:      "should raise an error for an argument",
+			Args:      []string{"pub", "--content"},
+			ExpectErr: "flag needs an argument: --content",
+		},
+		{
+			Name:      "should raise an error for insufficient flags: --relay,--secret,--content",
 			Args:      []string{"pub"},
-			ExpectErr: "required flag(s) \"relay\", \"secret\" not set",
+			ExpectErr: "required flag(s) \"relay\", \"secret\", \"content\" not set",
 		},
 		{
 			Name:      "should raise an error for insufficient flag: --secret",
-			Args:      []string{"pub", "--relay", "test"},
-			ExpectErr: "required flag(s) \"secret\" not set",
-		},
-		{
-			Name:      "should raise an error for insufficient flag: --secret",
-			Args:      []string{"pub", "-r", "test"},
+			Args:      []string{"pub", "--relay", "test", "--content", "text"},
 			ExpectErr: "required flag(s) \"secret\" not set",
 		},
 		{
 			Name:      "should raise an error for insufficient flag: --relay",
-			Args:      []string{"pub", "--secret", "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba"},
+			Args:      []string{"pub", "--secret", "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba", "--content", "text"},
 			ExpectErr: "required flag(s) \"relay\" not set",
 		},
 		{
-			Name:      "should raise an error for insufficient flag: --relay",
-			Args:      []string{"pub", "-s", "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba"},
-			ExpectErr: "required flag(s) \"relay\" not set",
+			Name:      "should raise an error for insufficient flag: --content",
+			Args:      []string{"pub", "--relay", "test", "--secret", "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba"},
+			ExpectErr: "required flag(s) \"content\" not set",
 		},
 	}
 
