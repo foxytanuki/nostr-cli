@@ -106,6 +106,12 @@ func TestPub(t *testing.T) {
 			ExpectErr: "error opening websocket to 'wss://localhost:3939': dial tcp [::1]:3939: connect: connection refused",
 		},
 		{
+			Name:      "invalid format relay",
+			FlagRelay: "foo",
+			FlagSk:    "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba",
+			ExpectErr: "error opening websocket to 'wss://foo': dial tcp: lookup foo: no such host",
+		},
+		{
 			Name:      "empty sk",
 			FlagRelay: u,
 			FlagSk:    "", // zero
@@ -131,9 +137,9 @@ func TestPub(t *testing.T) {
 		},
 	}
 
-	initPubCmd()
-
 	for _, c := range cases {
+		rootCmd := initRootCmd()
+		initPubCmd(rootCmd)
 		t.Run(c.Name, func(t *testing.T) {
 			err := pub(c.FlagRelay, c.FlagSk)
 
@@ -151,44 +157,57 @@ func TestPub(t *testing.T) {
 }
 
 func TestPubCmd(t *testing.T) {
-	initPubCmd()
-
-	b := bytes.NewBufferString("")
-	rootCmd.SetOut(b)
-
 	type TestCase struct {
-		Name        string
-		Args        []string
-		ExpectErr   bool
-		ExpectedMsg string
+		Name      string
+		Args      []string
+		ExpectErr string
 	}
 	cases := []TestCase{
 		{
-			Name:        "should raise an error for an argument",
-			Args:        []string{"pub", "--relay"},
-			ExpectErr:   true,
-			ExpectedMsg: "flag needs an argument: --relay",
+			Name:      "should raise an error for an argument",
+			Args:      []string{"pub", "--relay"},
+			ExpectErr: "flag needs an argument: --relay",
 		},
 		{
-			Name:        "should raise an error for insufficient flags",
-			Args:        []string{"pub"},
-			ExpectErr:   true,
-			ExpectedMsg: "required flag(s) \"relay\" not set",
+			Name:      "should raise an error for an argument",
+			Args:      []string{"pub", "--secret"},
+			ExpectErr: "flag needs an argument: --secret",
 		},
 		{
-			Name:        "should raise an error for not ws",
-			Args:        []string{"pub", "--relay", "https://relay.io"},
-			ExpectErr:   true,
-			ExpectedMsg: "relay should be 'ws://**' or 'wss://**'",
+			Name:      "should raise an error for insufficient flags: --relay,--secret",
+			Args:      []string{"pub"},
+			ExpectErr: "required flag(s) \"relay\", \"secret\" not set",
+		},
+		{
+			Name:      "should raise an error for insufficient flag: --secret",
+			Args:      []string{"pub", "--relay", "test"},
+			ExpectErr: "required flag(s) \"secret\" not set",
+		},
+		{
+			Name:      "should raise an error for insufficient flag: --secret",
+			Args:      []string{"pub", "-r", "test"},
+			ExpectErr: "required flag(s) \"secret\" not set",
+		},
+		{
+			Name:      "should raise an error for insufficient flag: --relay",
+			Args:      []string{"pub", "--secret", "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba"},
+			ExpectErr: "required flag(s) \"relay\" not set",
+		},
+		{
+			Name:      "should raise an error for insufficient flag: --relay",
+			Args:      []string{"pub", "-s", "0157185874f5154fa90134df887184a18e2d1d18087fb95653f4026984c91fba"},
+			ExpectErr: "required flag(s) \"relay\" not set",
 		},
 	}
 
 	for _, c := range cases {
+		rootCmd := initRootCmd()
+		initPubCmd(rootCmd)
 		_, err := executeCommand(rootCmd, c.Args...)
 		t.Run(c.Name, func(t *testing.T) {
-			if c.ExpectErr {
+			if len(c.ExpectErr) > 0 {
 				if err != nil {
-					checkStringContains(t, err.Error(), c.ExpectedMsg)
+					checkStringContains(t, err.Error(), c.ExpectErr)
 				} else {
 					t.Error("error should be raised")
 				}
