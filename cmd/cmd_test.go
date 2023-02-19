@@ -63,7 +63,7 @@ func TestMain(m *testing.M) {
 	s := httptest.NewServer(http.HandlerFunc(echo))
 	defer s.Close()
 
-	// Convert http://127.0.0.1 to ws://127.0.0.
+	// Convert http://127.0.0.1 to ws://127.0.0.1
 	u = "ws" + strings.TrimPrefix(s.URL, "http")
 	code := m.Run()
 	os.Exit(code)
