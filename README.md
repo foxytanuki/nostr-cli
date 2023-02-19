@@ -11,5 +11,6 @@ The command-line tool to get and post events to the nostr world.
   - https://chroju.dev/blog/go_cobra_testable_refinement
 - https://stackoverflow.com/questions/47637308/create-unit-test-for-ws-in-golang
 - https://github.com/decred/dcrd/tree/master/dcrec/secp256k1/schnorr
+- https://zenn.dev/kou_pg_0131/articles/go-cli-packages
 
 </details>
