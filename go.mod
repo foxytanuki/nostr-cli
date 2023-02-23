@@ -3,8 +3,9 @@ module github.com/foxytanuki/nostr-cli
 go 1.19
 
 require (
+	github.com/foxytanuki/go-nostr-event v0.0.3
 	github.com/gorilla/websocket v1.4.2
-	github.com/nbd-wtf/go-nostr v0.13.0
+	github.com/nbd-wtf/go-nostr v0.13.1
 	github.com/spf13/cobra v1.6.1
 )
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
+	nostrevent "github.com/foxytanuki/go-nostr-event"
 	"github.com/nbd-wtf/go-nostr"
 	"github.com/spf13/cobra"
 )
@@ -19,23 +19,13 @@ func pub(relayUrl string, sk string, content string) error {
 	if len(sk) < 64 || len(sk) > 64 {
 		return cmdError(ErrInvalidHashLen, fmt.Sprintf("invalid hash length: %d, should be 32-bytes lowercase hex-encoded private key", len(sk)))
 	}
-	pub, err := nostr.GetPublicKey(sk)
-	if err != nil {
-		return cmdError(ErrGetPublicKey, err.Error())
-	}
 
-	ev := nostr.Event{
-		PubKey:    pub,
-		CreatedAt: time.Now(),
-		Kind:      1,
-		Tags:      nil,
-		Content:   content,
-	}
-	if err := ev.Sign(sk); err != nil {
+	cev := nostrevent.NewNote(content)
+	if err := cev.SignPk(sk); err != nil {
 		return cmdError(ErrSignEvent, err.Error())
 	}
 
-	status := relay.Publish(context.Background(), ev)
+	status := relay.Publish(context.Background(), cev.Event)
 	fmt.Println("published to ", relayUrl, status)
 	if status == nostr.PublishStatusFailed {
 		return errors.New("error: publish failed")
