@@ -17,7 +17,7 @@ func pub(relayUrl string, sk string, content string) error {
 	}
 
 	if len(sk) < 64 || len(sk) > 64 {
-		return cmdError(ErrInvalidHashLen, fmt.Sprintf("invalid hash length: %d, should be 32-bytes lowercase hex-encoded public key", len(sk)))
+		return cmdError(ErrInvalidHashLen, fmt.Sprintf("invalid hash length: %d, should be 32-bytes lowercase hex-encoded private key", len(sk)))
 	}
 	pub, err := nostr.GetPublicKey(sk)
 	if err != nil {
